@@ -17,6 +17,7 @@
   "author": "Nanang Mahdaen El Agung <mahdaen@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/lodash": "^4.14.168",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
