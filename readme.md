@@ -2,4 +2,4 @@
 
 A client library to connect with Metal Event.
 
-[API Docs](https://mahdaen.github.io/metal-event).
+[API Docs](https://mahdaen.github.io/metal-event-client).
