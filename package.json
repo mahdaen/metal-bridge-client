@@ -1,23 +1,23 @@
 {
-  "name": "metal-bridge-client",
+  "name": "metal-event-client",
   "version": "1.0.0",
-  "description": "Metal Bridge client library for browser.",
+  "description": "Metal Event client library for browser.",
   "main": "dist/index.ts",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npx run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx rimraf ./dist && npx tsc"
   },
   "keywords": [
     "metal",
-    "bridge",
+    "event",
     "client",
     "library"
   ],
   "author": "Nanang Mahdaen El Agung <mahdaen@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.21.0",
@@ -33,10 +33,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mahdaen/metal-bridge-client.git"
+    "url": "git+https://github.com/mahdaen/metal-event-client.git"
   },
   "bugs": {
-    "url": "https://github.com/mahdaen/metal-bridge-client/issues"
+    "url": "https://github.com/mahdaen/metal-event-client/issues"
   },
-  "homepage": "https://github.com/mahdaen/metal-bridge-client#readme"
+  "homepage": "https://github.com/mahdaen/metal-event-client#readme"
 }

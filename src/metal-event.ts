@@ -3,60 +3,24 @@ import { v4 as uuid } from 'uuid';
 import { EventEmitter } from './event';
 import { QueryFilter } from './filter';
 import {
+  ClientConfig,
   ClientMessage,
   ClientRequest,
   ClientSubscription,
-  RequestHeaders,
-  RequestMethod,
+  QueryParams,
+  RequestConfig,
+  RequestOptions,
+  RequestQueue,
+  Requests,
   ServerEvent,
   ServerMessage,
   ServerResponse,
+  Subscriber,
+  SubscriptionHandler,
 } from './interface';
-import { Logger, LogLevel } from './logger';
+import { Logger } from './logger';
 
-export interface ClientConfig {
-  baseURL: string;
-  clientId?: string;
-  headers?: RequestHeaders;
-  timeout?: number;
-  logLevel?: LogLevel;
-  autoConnect?: boolean;
-  keepAlive?: boolean;
-}
-
-export type QueryParams = {
-  [key: string]: string | boolean | number | Date | string[] | number[] | object;
-}
-
-export interface RequestOptions {
-  params?: QueryParams;
-  filters?: QueryFilter;
-  headers?: RequestHeaders;
-  timeout?: number;
-}
-
-export interface RequestConfig<T> extends RequestOptions {
-  url?: string;
-  method?: RequestMethod;
-  data?: T;
-}
-
-export type Requests = {
-  [id: string]: (res: ServerResponse<any>) => void;
-}
-
-export type SubscriptionHandler<D> = (event: ServerEvent<D>) => void | Promise<void>;
-type Subscriber<D> = {
-  handler: SubscriptionHandler<D>;
-  subscription: Subscription<D>;
-}
-
-type RequestQueue = {
-  resolve: (value?: any) => void;
-  reject: (error?: Error) => void
-}
-
-export class Client {
+export class MetalEvent {
   private client: WebSocket;
   private requests: Requests = {};
   private subscriptions: {
