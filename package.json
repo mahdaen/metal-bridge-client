@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rimraf ./dist && npx tsc"
+    "build": "npx rimraf ./dist && npx tsc",
+    "docs": "npx typedoc src/index.ts --out docs --name \"Metal Event Client\" --readme ./readme.md"
   },
   "keywords": [
     "metal",
@@ -26,7 +27,8 @@
     "eslint-plugin-import": "^2.22.1",
     "rimraf": "^3.0.2",
     "tslib": "^2.1.0",
-    "typescript": "^3.7.5"
+    "typedoc": "^0.20.30",
+    "typescript": "^3.9.9"
   },
   "dependencies": {
     "lodash": "^4.17.21",
