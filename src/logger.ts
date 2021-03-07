@@ -1,4 +1,4 @@
-import { EventEmitter } from 'event';
+import { EventEmitter } from './event';
 
 export enum LogLevel {
   DEBUG,
@@ -13,7 +13,7 @@ export type LoggerConfig = {
 
 export class Logger {
   public static config: LoggerConfig = {
-    level: LogLevel.DEBUG
+    level: LogLevel.DEBUG,
   };
 
   public static ondebug = new EventEmitter();
@@ -50,7 +50,7 @@ export class Logger {
   }
 }
 
-const printref = {
+const printRef = {
   debug: {
     icon: '[ ]',
     color: '\x1b[37m%s\x1b[0m',
@@ -71,8 +71,8 @@ const printref = {
     color: '\x1b[31m%s\x1b[0m',
     fn: console.error
   },
-}
+};
 
 function print(message, level) {
-  printref[level].fn(printref[level].color, `${printref[level].icon} ${message}`);
+  printRef[level].fn(printRef[level].color, `${printRef[level].icon} ${message}`);
 }

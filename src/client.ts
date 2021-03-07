@@ -1,5 +1,7 @@
-import { EventEmitter } from 'event';
-import { QueryFilter } from 'filter';
+import _ from 'lodash';
+import { v4 as uuid } from 'uuid';
+import { EventEmitter } from './event';
+import { QueryFilter } from './filter';
 import {
   ClientMessage,
   ClientRequest,
@@ -8,11 +10,9 @@ import {
   RequestMethod,
   ServerEvent,
   ServerMessage,
-  ServerResponse
-} from 'interface';
-import _ from 'lodash';
-import { Logger, LogLevel } from 'logger';
-import { v4 as uuid } from 'uuid';
+  ServerResponse,
+} from './interface';
+import { Logger, LogLevel } from './logger';
 
 export interface ClientConfig {
   baseURL: string;
@@ -20,7 +20,7 @@ export interface ClientConfig {
   headers?: RequestHeaders;
   timeout?: number;
   logLevel?: LogLevel;
-  autoconnect?: boolean;
+  autoConnect?: boolean;
   keepAlive?: boolean;
 }
 
@@ -83,7 +83,7 @@ export class Client {
       Logger.config.level = config.logLevel;
     }
 
-    if (config.autoconnect) {
+    if (config.autoConnect) {
       this.connect();
     }
   }
@@ -129,7 +129,7 @@ export class Client {
         this.connect();
       } else {
         if (this.config.keepAlive) {
-          this.connect(true);
+          if (this.config.keepAlive) this.connect(true);
         }
       }
     };
@@ -148,48 +148,59 @@ export class Client {
           this.subscriptions[message.uuid].forEach(sub => sub.handler(data));
         }
       }
-    }
+    };
   }
 
   public async get<D>(url: string, options?: RequestOptions): Promise<ServerResponse<D>> {
-    return await this.request({
-      url, method: 'get', ...options
+    return this.request({
+      url,
+      method: 'get', ...options,
     });
   }
 
   public async post<R, D>(url: string, data: R, options?: RequestOptions): Promise<ServerResponse<D>> {
-    return await this.request({
-      url, method: 'post', data, ...options
+    return this.request({
+      url,
+      method: 'post',
+      data, ...options,
     });
   }
 
   public async put<R, D>(url: string, data: R, options?: RequestOptions): Promise<ServerResponse<D>> {
-    return await this.request({
-      url, method: 'put', data, ...options
+    return this.request({
+      url,
+      method: 'put',
+      data, ...options,
     });
   }
 
   public async delete<D>(url: string, options?: RequestOptions): Promise<ServerResponse<D>> {
-    return await this.request({
-      url, method: 'delete', ...options
+    return this.request({
+      url,
+      method: 'delete', ...options,
     });
   }
 
   public async options(url: string, options?: RequestOptions): Promise<ServerResponse<void>> {
-    return await this.request({
-      url, method: 'options', ...options
+    return this.request({
+      url,
+      method: 'options', ...options,
     });
   }
 
   public async request<R, D>(config: RequestConfig<R>): Promise<ServerResponse<D>> {
     const data: ClientRequest<R> = this.createRequest(config);
-    return await this.submit({ type: 'request', uuid: uuid(), data });
+    return this.submit({
+      type: 'request',
+      uuid: uuid(),
+      data
+    });
   }
 
   public async subscribe<D>(
     path: string,
     handler: SubscriptionHandler<D>,
-    options: RequestOptions = {}
+    options: RequestOptions = {},
   ): Promise<Subscription<D>> {
     if (!path) {
       throw new Error('Subscription path is required.');
@@ -199,49 +210,80 @@ export class Client {
       throw new Error('Subscription handler is required.');
     }
 
-    const { params = {}, headers = {} } = options;
+    const {
+      params = {},
+      headers = {}
+    } = options;
     const filters = options.filters || _.get(params, 'filter.where') as QueryFilter || {};
-    const req = this.createRequest({ url: path, method: 'subscribe', params, headers }) as ClientSubscription;
-    const request: ClientSubscription = { ...req, filters };
+    const req = this.createRequest({
+      url: path,
+      method: 'subscribe',
+      params,
+      headers
+    }) as ClientSubscription;
+    const request: ClientSubscription = {
+      ...req,
+      filters
+    };
 
-    try {
-      const response = await this.submit<any, any>({ type: 'subscription', uuid: uuid(), data: request });
-      const subscription = new Subscription<D>(request, response, handler);
-      const info: Subscriber<D> = {
-        handler,
-        subscription
-      }
-      if (!this.subscriptions[subscription.id]) {
-        this.subscriptions[subscription.id] = [];
-      }
-      this.subscriptions[subscription.id].push(info);
-      subscription.unsubscribe = async () => {
-        await this.unsubscribe(path, options);
-        this.subscriptions[subscription.id].splice(this.subscriptions[subscription.id].indexOf(info), 1);
-      }
-      return subscription;
-    } catch (error) {
-      throw error;
+    const response = await this.submit<any, any>({
+      type: 'subscription',
+      uuid: uuid(),
+      data: request
+    });
+    const subscription = new Subscription<D>(request, response, handler);
+    const info: Subscriber<D> = {
+      handler,
+      subscription,
+    };
+    if (!this.subscriptions[subscription.id]) {
+      this.subscriptions[subscription.id] = [];
     }
+    this.subscriptions[subscription.id].push(info);
+    subscription.unsubscribe = async () => {
+      await this.unsubscribe(path, options);
+      this.subscriptions[subscription.id]
+        .splice(this.subscriptions[subscription.id].indexOf(info), 1);
+    };
+
+    return subscription;
   }
 
   protected async unsubscribe(path: string, options?: RequestOptions) {
-    const { params = {}, headers = {} } = options;
+    const {
+      params = {},
+      headers = {}
+    } = options;
     const filters = options.filters || _.get(params, 'filter.where') as QueryFilter || {};
-    const req = this.createRequest({ url: path, method: 'unsubscribe', params, headers }) as ClientSubscription;
-    const request: ClientSubscription = { ...req, filters };
+    const req = this.createRequest({
+      url: path,
+      method: 'unsubscribe',
+      params,
+      headers
+    }) as ClientSubscription;
+    const request: ClientSubscription = {
+      ...req,
+      filters
+    };
 
-    try {
-      await this.submit({ type: 'subscription', uuid: uuid(), data: request });
-    } catch (error) {
-      throw error;
-    }
+    await this.submit({
+      type: 'subscription',
+      uuid: uuid(),
+      data: request
+    });
   }
 
   protected createRequest<R>(config: RequestConfig<R>): ClientRequest<R> {
-    const { url, method, params = {}, headers = {}, data } = config;
+    const {
+      url,
+      method,
+      params = {},
+      headers = {},
+      data
+    } = config;
     return {
-      method, data,
+      method,
+      data,
       headers: { ...this.config.headers || {}, ...headers },
       url: this.createURL(url, params),
     };
@@ -255,16 +297,22 @@ export class Client {
     return params && Object.keys(params).length ? `${url}?${stringify(params)}` : url;
   }
 
-  protected async submit<R, D>(message: ClientMessage<R>, options: RequestOptions = {}): Promise<ServerResponse<D>> {
+  protected async submit<R, D>(
+    message: ClientMessage<R>,
+    options: RequestOptions = {}
+  ): Promise<ServerResponse<D>> {
     const start = new Date().getTime();
 
     if (this.status !== 'ready') {
       await new Promise((resolve, reject) => {
-        this.queues.push({ resolve, reject });
+        this.queues.push({
+          resolve,
+          reject
+        });
       });
     }
 
-    return await new Promise<ServerResponse<D>>((resolve, reject) => {
+    return new Promise<ServerResponse<D>>((resolve, reject) => {
       this.requests[message.uuid] = (res: ServerResponse<D>) => {
         if (res.status >= 200 && res.status < 300) {
           resolve(res);
@@ -274,7 +322,7 @@ export class Client {
 
         delete this.requests[message.uuid];
         Logger.info(`Request ${message.uuid} finished in: ${new Date().getTime() - start}ms.`);
-      }
+      };
 
       if (options.timeout || this.config.timeout) {
         setTimeout(() => {
@@ -294,10 +342,10 @@ export class Subscription<D> {
   constructor(
     public request: ClientSubscription,
     public response: ServerResponse<any>,
-    private handler: SubscriptionHandler<D>
+    private handler: SubscriptionHandler<D>,
   ) {
     if (response.data && response.data.id) {
-      this.id = response.data.id
+      this.id = response.data.id;
     } else {
       throw new Error('Missing subscription id.');
     }

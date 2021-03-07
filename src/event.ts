@@ -1,5 +1,5 @@
 export type EventHandler<T> = (...events: T[]) => void;
-export type Unsubscriber = () => void;
+export type Unsubscribe = () => void;
 
 export class EventEmitter {
   listeners: EventHandler<any>[] = [];
@@ -12,7 +12,7 @@ export class EventEmitter {
     }
   }
 
-  subscribe<T>(handler: EventHandler<T>): Unsubscriber {
+  subscribe<T>(handler: EventHandler<T>): Unsubscribe {
     if (Array.isArray(this.listeners)) {
       if (typeof handler === 'function' && !this.listeners.includes(handler)) {
         this.listeners.push(handler);

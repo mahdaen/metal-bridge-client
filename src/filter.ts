@@ -62,6 +62,7 @@ export function matchAll(data: object = {}, filter: WhereFilter = {}) {
             break;
           case 'between':
             if (typeof target !== 'number' || target < value[0] || value > value[1]) match = false;
+            break;
           default:
             break;
         }
