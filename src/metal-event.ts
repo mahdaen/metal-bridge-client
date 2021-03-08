@@ -1,5 +1,3 @@
-import _ from 'lodash';
-import { v4 as uuid } from 'uuid';
 import { EventEmitter } from './event';
 import { QueryFilter } from './filter';
 import {
@@ -19,9 +17,10 @@ import {
   SubscriptionHandler,
 } from './interface';
 import { Logger } from './logger';
+import uuid from './uuid';
 
 export class MetalEvent {
-  private client: WebSocket;
+  private client?: WebSocket;
   private requests: Requests = {};
   private subscriptions: {
     [id: string]: Subscriber<any>[]
@@ -39,7 +38,11 @@ export class MetalEvent {
   }
 
   public get readyState(): number {
-    return this.client.readyState;
+    if (this.client) {
+      return this.client.readyState;
+    }
+
+    return 0;
   }
 
   constructor(protected config: ClientConfig) {
@@ -52,7 +55,7 @@ export class MetalEvent {
     }
   }
 
-  public connect(reconnect?: boolean) {
+  public connect(reconnect?: boolean): void {
     let url = `${this.baseURL}?clientId=${this.config.clientId || uuid()}`;
 
     if (reconnect) {
@@ -93,7 +96,7 @@ export class MetalEvent {
         this.connect();
       } else {
         if (this.config.keepAlive) {
-          if (this.config.keepAlive) this.connect(true);
+          if (this.config.keepAlive) { this.connect(true); }
         }
       }
     };
@@ -178,7 +181,7 @@ export class MetalEvent {
       params = {},
       headers = {}
     } = options;
-    const filters = options.filters || _.get(params, 'filter.where') as QueryFilter || {};
+    const filters = options.filters || (params.filters || {} as any).where as QueryFilter || {};
     const req = this.createRequest({
       url: path,
       method: 'subscribe',
@@ -213,12 +216,12 @@ export class MetalEvent {
     return subscription;
   }
 
-  protected async unsubscribe(path: string, options?: RequestOptions) {
+  protected async unsubscribe(path: string, options: RequestOptions = {}): Promise<void> {
     const {
       params = {},
       headers = {}
     } = options;
-    const filters = options.filters || _.get(params, 'filter.where') as QueryFilter || {};
+    const filters = options.filters || (params.filter || {} as any).where as QueryFilter || {};
     const req = this.createRequest({
       url: path,
       method: 'unsubscribe',
@@ -294,14 +297,16 @@ export class MetalEvent {
         }, options.timeout || this.config.timeout);
       }
 
-      this.client.send(JSON.stringify(message));
+      if (this.client) {
+        this.client.send(JSON.stringify(message));
+      }
     });
   }
 }
 
 export class Subscription<D> {
   public id: string;
-  public unsubscribe: () => void;
+  public unsubscribe?: () => void;
 
   constructor(
     public request: ClientSubscription,
@@ -315,7 +320,7 @@ export class Subscription<D> {
     }
   }
 
-  public emit(event: ServerEvent<D>) {
+  public emit(event: ServerEvent<D>): void {
     this.handler(event);
   }
 }

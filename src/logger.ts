@@ -9,7 +9,7 @@ export enum LogLevel {
 
 export type LoggerConfig = {
   level: LogLevel;
-}
+};
 
 export class Logger {
   public static config: LoggerConfig = {
@@ -21,28 +21,28 @@ export class Logger {
   public static onwarn = new EventEmitter();
   public static onerror = new EventEmitter();
 
-  public static debug(message: string, data?: any) {
+  public static debug(message: string, data?: any): void {
     this.ondebug.emit(message, data);
     if (this.config.level <= LogLevel.DEBUG) {
       print(message, 'debug');
     }
   }
 
-  public static info(message: string, data?: any) {
+  public static info(message: string, data?: any): void {
     this.oninfo.emit(message, data);
     if (this.config.level <= LogLevel.INFO) {
       print(message, 'info');
     }
   }
 
-  public static warn(message: string, data?: any) {
+  public static warn(message: string, data?: any): void {
     this.onwarn.emit(message, data);
     if (this.config.level <= LogLevel.WARN) {
       print(message, 'warn');
     }
   }
 
-  public static error(message: string, error: Error) {
+  public static error(message: string, error: Error): void {
     this.onerror.emit<any>(message, error);
     if (this.config.level <= LogLevel.ERROR) {
       print(message, 'error');
@@ -50,7 +50,7 @@ export class Logger {
   }
 }
 
-const printRef = {
+const printRef: any = {
   debug: {
     icon: '[ ]',
     color: '\x1b[37m%s\x1b[0m',
@@ -59,6 +59,7 @@ const printRef = {
   info: {
     icon: '[✓︎]',
     color: '\x1b[36m%s\x1b[0m',
+    // tslint:disable-next-line:no-console
     fn: console.info
   },
   warn: {
@@ -73,6 +74,6 @@ const printRef = {
   },
 };
 
-function print(message, level) {
+function print(message: string, level: string): void {
   printRef[level].fn(printRef[level].color, `${printRef[level].icon} ${message}`);
 }

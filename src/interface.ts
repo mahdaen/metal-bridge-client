@@ -1,6 +1,6 @@
-import { Subscription } from './metal-event';
-import { LogLevel } from './logger';
 import { QueryFilter } from './filter';
+import { LogLevel } from './logger';
+import { Subscription } from './metal-event';
 
 export type MessageBody = string | number | JSONBody | any[];
 export type JSONBody = { [key: string]: any };
@@ -31,14 +31,14 @@ export type ServerMessage<T> = {
   type: 'response' | 'event';
   data: ServerResponse<T> | ServerEvent<T>;
   uuid: string;
-}
+};
 
 export type ServerResponse<T> = {
   status: number;
   statusText: string;
   headers?: RequestHeaders;
   data?: T;
-}
+};
 
 export type ServerEventType = RequestMethod | 'touch';
 export type ServerEvent<T> = {
@@ -47,7 +47,7 @@ export type ServerEvent<T> = {
   filters?: QueryFilter;
   data?: T;
   referer?: ServerEvent<any>;
-}
+};
 
 export interface ClientConfig {
   baseURL: string;
@@ -61,7 +61,7 @@ export interface ClientConfig {
 
 export type QueryParams = {
   [key: string]: string | boolean | number | Date | string[] | number[] | object;
-}
+};
 
 export interface RequestOptions {
   params?: QueryParams;
@@ -71,20 +71,20 @@ export interface RequestOptions {
 }
 
 export interface RequestConfig<T> extends RequestOptions {
-  url?: string;
-  method?: RequestMethod;
+  url: string;
+  method: RequestMethod;
   data?: T;
 }
 
 export type Requests = {
   [id: string]: (res: ServerResponse<any>) => void;
-}
+};
 export type SubscriptionHandler<D> = (event: ServerEvent<D>) => void | Promise<void>;
 export type Subscriber<D> = {
   handler: SubscriptionHandler<D>;
   subscription: Subscription<D>;
-}
+};
 export type RequestQueue = {
   resolve: (value?: any) => void;
   reject: (error?: Error) => void
-}
+};

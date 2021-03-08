@@ -12,7 +12,7 @@ export class EventEmitter {
     }
   }
 
-  subscribe<T>(handler: EventHandler<T>): Unsubscribe {
+  subscribe<T>(handler: EventHandler<T>): Unsubscribe | void {
     if (Array.isArray(this.listeners)) {
       if (typeof handler === 'function' && !this.listeners.includes(handler)) {
         this.listeners.push(handler);
