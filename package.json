@@ -1,6 +1,6 @@
 {
   "name": "metal-event-client",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "Metal Event client library for browser.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
