@@ -40,5 +40,6 @@
   "bugs": {
     "url": "https://github.com/mahdaen/metal-event-client/issues"
   },
-  "homepage": "https://github.com/mahdaen/metal-event-client#readme"
+  "homepage": "https://github.com/mahdaen/metal-event-client#readme",
+  "type": "module"
 }
